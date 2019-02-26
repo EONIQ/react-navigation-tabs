@@ -1,8 +1,9 @@
 /* @flow */
 
 import * as React from 'react';
-import { Animated, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TabBar } from 'react-native-tab-view';
+import Animated from 'react-native-reanimated';
 import CrossFadeIcon from './CrossFadeIcon';
 
 export type TabBarOptions = {
@@ -17,9 +18,7 @@ export type TabBarOptions = {
 };
 
 type Props = TabBarOptions & {
-  position: Animated.Value,
-  offsetX: Animated.Value,
-  panX: Animated.Value,
+  position: Animated.Node<number>,
   layout: any,
   navigation: any,
   renderIcon: (props: {
@@ -69,7 +68,7 @@ export default class TabBarTop extends React.PureComponent<Props> {
     const outputRange = inputRange.map(
       inputIndex => (inputIndex === index ? activeTintColor : inactiveTintColor)
     );
-    const color = position.interpolate({
+    const color = Animated.interpolate(position, {
       inputRange,
       outputRange: outputRange,
     });
@@ -113,11 +112,11 @@ export default class TabBarTop extends React.PureComponent<Props> {
 
     // Prepend '-1', so there are always at least 2 items in inputRange
     const inputRange = [-1, ...navigation.state.routes.map((x, i) => i)];
-    const activeOpacity = position.interpolate({
+    const activeOpacity = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(i => (i === index ? 1 : 0)),
     });
-    const inactiveOpacity = position.interpolate({
+    const inactiveOpacity = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(i => (i === index ? 0 : 1)),
     });

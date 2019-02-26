@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 import { polyfill } from 'react-lifecycles-compat';
-import { TabView, PagerPan } from 'react-native-tab-view';
+import { TabView } from 'react-native-tab-view';
 import createTabNavigator, {
   type InjectedProps,
 } from '../utils/createTabNavigator';
@@ -13,7 +13,6 @@ import MaterialTopTabBar, {
 import ResourceSavingScene from '../views/ResourceSavingScene';
 
 type Props = InjectedProps & {
-  animationEnabled?: boolean,
   lazy?: boolean,
   optimizationsEnabled?: boolean,
   swipeEnabled?: boolean,
@@ -36,7 +35,6 @@ class MaterialTabView extends React.PureComponent<Props, State> {
     initialLayout: Platform.select({
       android: { width: 1, height: 0 },
     }),
-    animationEnabled: true,
     lazy: false,
     optimizationsEnabled: false,
   };
@@ -115,8 +113,6 @@ class MaterialTabView extends React.PureComponent<Props, State> {
     );
   };
 
-  _renderPanPager = props => <PagerPan {...props} />;
-
   _handleAnimationEnd = () => {
     const { lazy } = this.props;
 
@@ -149,9 +145,9 @@ class MaterialTabView extends React.PureComponent<Props, State> {
   };
 
   _handleIndexChange = index => {
-    const { animationEnabled, navigation, onIndexChange, lazy } = this.props;
+    const { navigation, onIndexChange, lazy } = this.props;
 
-    if (lazy && animationEnabled) {
+    if (lazy) {
       this.setState({
         transitioningFromIndex: navigation.state.index || 0,
       });
@@ -161,7 +157,7 @@ class MaterialTabView extends React.PureComponent<Props, State> {
   };
 
   _mustBeVisible = ({ index, focused }) => {
-    const { animationEnabled, navigation } = this.props;
+    const { navigation } = this.props;
     const { isSwiping, transitioningFromIndex } = this.state;
 
     if (isSwiping) {
@@ -175,7 +171,7 @@ class MaterialTabView extends React.PureComponent<Props, State> {
     }
 
     // The previous tab should remain visible while transitioning
-    if (animationEnabled && transitioningFromIndex === index) {
+    if (transitioningFromIndex === index) {
       return true;
     }
 
@@ -215,7 +211,6 @@ class MaterialTabView extends React.PureComponent<Props, State> {
   render() {
     const {
       navigation,
-      animationEnabled,
       // eslint-disable-next-line no-unused-vars
       renderScene,
       // eslint-disable-next-line no-unused-vars
@@ -240,19 +235,12 @@ class MaterialTabView extends React.PureComponent<Props, State> {
       swipeEnabled = swipeEnabled(state);
     }
 
-    if (animationEnabled === false && swipeEnabled === false) {
-      renderPager = this._renderPanPager;
-    }
-
     return (
       <TabView
         {...rest}
         navigationState={navigation.state}
-        animationEnabled={animationEnabled}
         swipeEnabled={swipeEnabled}
-        onAnimationEnd={this._handleAnimationEnd}
         onIndexChange={this._handleIndexChange}
-        onSwipeStart={this._handleSwipeStart}
         renderPager={renderPager}
         renderTabBar={this._renderTabBar}
         renderScene={
